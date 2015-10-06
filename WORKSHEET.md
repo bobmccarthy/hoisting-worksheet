@@ -17,19 +17,23 @@ var myvar = 'my value';
 ```
 
 > output:
->-
+>-undefined
 >-
 >-
 > why?
->-
->-
+>-because 'local value' would not get set until after the console log
+>-moves the declaration but not the definition
 >-
 >-
 >-
 >-
 > rewrite without hoisting
->-
->-
+>-var myvar = 'my value'
+>-(function() { 
+	var myvar;
+	console.log(myvar);
+	myvar = 'local value'; 
+})();
 >-
 >-
 >-
@@ -45,6 +49,7 @@ var myvar = 'my value';
 var flag = true; 
   
 function test() {
+
 	if(flag) {
 		var flag = false;
 		console.log('Switch flag from true to false');
@@ -58,11 +63,11 @@ test();
 ```
 
 > output:
->-
+>-console.log('Switch flag from false to true')
 >-
 >-
 > why?
->-
+>-the flag variable was not locally defined before the if statement was run.
 >-
 >-
 >-
@@ -71,6 +76,20 @@ test();
 > rewrite without hoisting
 >-
 >-
+var flag = true; 
+  
+function test() {
+	var flag;
+	if(flag) {
+		flag = false;
+		console.log('Switch flag from true to false');
+	}
+	else {
+		flag = true;
+		console.log('Switch flag from false to true');
+	}
+}
+test();
 >-
 >-
 >-
@@ -95,11 +114,11 @@ saySomething();
 
 > output:
 >-
->-
+>-undefined
 >-
 > why?
 >-
->-
+>-the var message was declared but not defined when console got logged
 >-
 >-
 >-
@@ -107,6 +126,13 @@ saySomething();
 > rewrite without hoisting
 >-
 >-
+var message = 'Hello world'; 
+	var message;
+function saySomething() {
+	console.log(message);
+	message = 'Foo bar';
+}
+saySomething();
 >-
 >-
 >-
@@ -129,12 +155,12 @@ saySomething();
 ```
 
 > output:
->-
+>-'hello world'
 >-
 >-
 > why?
 >-
->-
+>-no new variables were declared in the function
 >-
 >-
 >-
@@ -156,12 +182,12 @@ test();
 ```
 
 > output:
->-
+>-undefined, 2
 >-
 >-
 > why?
 >-
->-
+>-the whole function is available, but only the declaration of var a is available for the console logs
 >-
 >-
 >-
@@ -169,6 +195,19 @@ test();
 > rewrite without hoisting
 >-
 >-
+function test() {
+	function foo() {
+		return 2;
+	}
+	var a;
+	console.log(a);
+	console.log(foo());
+
+	a = 1;
+	
+}
+ 
+test();
 >-
 >-
 >-
@@ -195,19 +234,30 @@ test();
 ```
 
 > output:
->-
+>-undefined, 'aloha'
 >-
 >-
 > why?
 >-
->-
->-
+>-bar is declared but undefined by the time it gets console logged
+>-the function is available at the beginning
 >-
 >-
 >-
 > rewrite without hoisting
 >-
 >-
+(function() {
+	function foo() {
+		console.log('aloha');
+	}
+	var bar;
+	console.log(bar);
+	foo();
+
+	bar = 1;
+	baz = 2;
+})();
 >-
 >-
 >-
@@ -238,12 +288,12 @@ fancy();
 ```
 
 > output:
->-
+>-'i can run'
 >-
 >-
 > why?
 >-
->-
+>-the function run hoisted to top, the if statement knew run was truthy valaue
 >-
 >-
 >-
@@ -251,6 +301,22 @@ fancy();
 > rewrite without hoisting
 >-
 >-
+var run = false;
+
+function fancy(arg1, arg2) {
+	function run() {
+		console.log('Will I run?');
+	}
+	if(run) {
+		console.log('I can run');
+	}
+	else {
+		console.log('I can\'t run');
+	}
+
+	
+}
+fancy();
 >-
 >-
 >-
@@ -281,11 +347,11 @@ fancy();
 ```
 
 > output:
->-
+>-'i cant run'
 >-
 >-
 > why?
->-
+>-the variable run was hoisted but not defined yet. So the fancy function saw it a undefined
 >-
 >-
 >-
@@ -294,6 +360,22 @@ fancy();
 > rewrite without hoisting
 >-
 >-
+var run = false;
+
+function fancy(arg1, arg2) {
+	var run;
+	if(run) {
+		console.log('I can run');
+	}
+	else {
+		console.log('I can\'t run');
+	}
+
+	run = function() {
+		console.log('Will I run?');
+	}
+}
+fancy();
 >-
 >-
 >-
